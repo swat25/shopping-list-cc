@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Family Grocery{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="container navbar-container">
+          <a href="/" class="logo">
+            <i class="fas fa-shopping-basket"></i>
+            Family Grocery
+          </a>
+
+          <ul class="nav-links">
+            {% if session.user_id %}
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('create_list') }}">New List</a></li>
+            <li class="user-info">
+              <span>Welcome {{ session.username }} , </span>
+              <a href="{{ url_for('logout') }}" class="btn btn-sm">Logout</a>
+            </li>
+            {% else %}
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Register</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+          <li class="flash {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <footer>
+      <div class="container footer-content">
+        <p>&copy; 2025 Family Grocery. All rights reserved.</p>
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

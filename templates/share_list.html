@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}Share List - Family Grocery{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div style="display: flex; align-items: center;">
+                    <a href="{{ url_for('view_list', list_id=list.id) }}" style="margin-right: 1rem; color: white;">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h2 style="margin: 0;">Share "{{ list.name }}" List</h2>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <form action="{{ url_for('share_list', list_id=list.id) }}" method="POST" class="add-item-form">
+                    <input type="text" name="username" placeholder="Enter username" class="form-control" required>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </form>
+                
+                <h3 style="margin-top: 2rem;">People with access</h3>
+                <div class="members-list">
+                    {% for member in members %}
+                        <div class="member-item">
+                            <div class="member-name">
+                                <i class="fas fa-user"></i>
+                                {{ member.username }}
+                                {% if member.id == list.user_id %}
+                                    <span class="creator-badge">Creator</span>
+                                {% endif %}
+                            </div>
+                            {% if list.user_id == session.user_id and member.id != list.user_id %}
+                                <a href="{{ url_for('unshare_list', list_id=list.id, user_id=member.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to remove {{ member.username }} from this list?')">
+                                    Remove
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3>Sharing Tips</h3>
+            </div>
+            <div class="card-body">
+                <ul style="padding-left: 1.5rem;">
+                    <li>Share with family members to collaborate on grocery shopping</li>
+                    <li>Anyone with access can add, edit, and mark items as purchased</li>
+                    <li>Only the creator can remove people or delete the list</li>
+                    <li>Users must have an account to be added to a list</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

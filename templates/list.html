@@ -1,0 +1,230 @@
+{% extends "layout.html" %} {% block title %}{{ grocery_list.name }} - Family
+Grocery{% endblock %} {% block content %}
+<div class="card">
+  <div class="card-header">
+    <div style="display: flex; align-items: center">
+      <a
+        href="{{ url_for('dashboard') }}"
+        style="margin-right: 1rem; color: white"
+      >
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h2 style="margin: 0">{{ grocery_list.name }}</h2>
+      {% if shares %}
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #ddd">
+        Shared with: {% for share in shares %}
+        <span style="margin-right: 0.5rem"
+          >{{ share.users.username }}{% if not loop.last %}, {% endif %}</span
+        >
+        {% endfor %}
+      </p>
+      {% endif %}
+    </div>
+    {% if grocery_list.created_by == session.user_id %}
+    <div>
+      <a
+        href="{{ url_for('share_list', list_id=grocery_list.id) }}"
+        class="btn btn-sm"
+      >
+        <i class="fas fa-share-alt"></i> Share
+      </a>
+      <a
+        href="{{ url_for('delete_list', list_id=grocery_list.id) }}"
+        class="btn btn-sm btn-danger"
+        onclick="return confirm('Are you sure you want to delete this list?')"
+      >
+        <i class="fas fa-trash"></i> Delete
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card-body">
+    <form
+      action="{{ url_for('add_item', list_id=grocery_list.id) }}"
+      method="POST"
+      class="add-item-form"
+    >
+      <input
+        type="text"
+        name="name"
+        placeholder="Item name"
+        class="form-control"
+        required
+      />
+      <input
+        type="text"
+        name="quantity"
+        placeholder="Quantity"
+        class="form-control"
+        required
+      />
+      <button type="submit" class="btn"><i class="fas fa-plus"></i> Add</button>
+    </form>
+
+    {% if items %}
+    <div class="list-group">
+      {% for item in items %}
+      <div
+        class="grocery-item {% if item.completed %}completed{% endif %}"
+        id="item-{{ item.id }}"
+      >
+        <div class="item-checkbox">
+          <input
+            type="checkbox"
+            id="checkbox-{{ item.id }}"
+            {%
+            if
+            item.completed
+            %}checked{%
+            endif
+            %}
+            onchange="toggleItem({{ item.id }})"
+          />
+        </div>
+        <div class="item-details">
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-quantity">Qty: {{ item.quantity }}</div>
+          <small class="text-muted">
+            Added by {{ item.users.username }} at {{item.added_at.strftime('%b
+            %d, %H:%M') }}</small
+          >
+        </div>
+        <div class="item-actions">
+          <button
+            class="edit-btn"
+            onclick="openEditModal({{ item.id }}, '{{ item.name }}', '{{ item.quantity }}')"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="delete-btn" onclick="deleteItem({{ item.id }})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem 0">
+      <i
+        class="fas fa-shopping-basket"
+        style="font-size: 3rem; color: #ccc; margin-bottom: 1rem"
+      ></i>
+      <p>No items in this list yet. Add some items above!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeEditModal()">&times;</button>
+    <div class="modal-header">
+      <h3>Edit Item</h3>
+    </div>
+    <form id="editForm" onsubmit="submitEdit(event)">
+      <div class="form-group">
+        <label for="edit-name">Item Name</label>
+        <input
+          type="text"
+          id="edit-name"
+          name="name"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="edit-quantity">Quantity</label>
+        <input
+          type="text"
+          id="edit-quantity"
+          name="quantity"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn"
+          style="background-color: #ccc"
+          onclick="closeEditModal()"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script>
+  function openEditModal(id, name, quantity) {
+    document.getElementById("editForm").action = "/item/" + id + "/update";
+    document.getElementById("edit-name").value = name;
+    document.getElementById("edit-quantity").value = quantity;
+    document.getElementById("editModal").style.display = "block";
+  }
+
+  function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+  }
+
+  window.onclick = function (event) {
+    if (event.target == document.getElementById("editModal")) {
+      closeEditModal();
+    }
+  };
+
+  function toggleItem(itemId) {
+    fetch(`/toggle_item/${itemId}`, {
+      method: "POST",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          const item = document.querySelector(`#item-${itemId}`);
+          item.classList.toggle("completed");
+        }
+      });
+  }
+
+  function deleteItem(itemId) {
+    if (!confirm("Are you sure you want to delete this item?")) return;
+    fetch(`/delete_item/${itemId}`, {
+      method: "POST",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          document.querySelector(`#item-${itemId}`).remove();
+        }
+      });
+  }
+
+  function submitEdit(event) {
+    event.preventDefault();
+    const form = document.getElementById("editForm");
+    const action = form.action;
+    const name = document.getElementById("edit-name").value;
+    const quantity = document.getElementById("edit-quantity").value;
+
+    fetch(action, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, quantity }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          closeEditModal();
+          location.reload(); // Or better: update item DOM dynamically
+        }
+      });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Create List - Family Grocery{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Create New Grocery List</h2>
+    <form action="{{ url_for('create_list') }}" method="POST">
+        <div class="form-group">
+            <label for="name">List Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Weekly Shopping, Birthday Party, etc." required>
+        </div>
+        
+        <button type="submit" class="btn btn-block">Create List</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 1.5rem;">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Family Grocery - Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Simplify Your Family Shopping</h1>
+    <p>Create and share grocery lists with your family members. Keep track of what you need and who's buying what.</p>
+    <div>
+        {% if session.user_id %}
+            <a href="{{ url_for('dashboard') }}" class="btn">Go to Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn" style="background-color: transparent; border: 1px solid white; margin-left: 1rem;">Login</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2 class="text-center" style="text-align: center; margin-bottom: 3rem;">Features</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Share with Family</h3>
+                    <p>Share your grocery lists with family members or roommates to keep everyone on the same page.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <h3>Track Progress</h3>
+                    <p>Mark items as purchased in real-time so everyone knows what's already been bought.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Access Anywhere</h3>
+                    <p>Use your grocery lists on any device, whether you're at home planning or at the store shopping.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
