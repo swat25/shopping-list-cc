@@ -302,5 +302,6 @@ def unshare_list(list_id, user_id):
 
     return redirect(url_for("share_list", list_id=list_id))
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
+
