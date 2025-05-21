@@ -198,7 +198,7 @@ def view_list(list_id):
     shares = (
         supabase
         .table("list_shares")
-        .select("shared_with, users(username)")
+        .select("shared_with, users!list_shares_shared_with_fkey(username)")
         .eq("list_id", list_id)
         .execute()
         .data or []
