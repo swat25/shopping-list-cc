@@ -6,3 +6,4 @@ env/
 venv/
 instance/
 .vscode/
+grocery-app-*.json
